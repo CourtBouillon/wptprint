@@ -1,0 +1,49 @@
+{% set emojis = {'PASS': '✔️', 'FAIL': '❌', 'NA': '🟡', 'ERROR': '⚠️'} %}
+
+{% macro display_test(test, result) %}
+  {{ test }}
+  <span>
+    {% if result.verified %}👁️{% endif %}
+    {{ emojis.get(result.status, '❔') }}
+  </span>
+{% endmacro %}
+
+{% macro display_tests(tests, path, pass, total, name, version, results) %}
+  <ul>
+    {% for test, subtests in tests.items() %}
+      {% set path = (path + '/' + test).lstrip('/') %}
+      {% set result = results.get(path) %}
+      <li>
+        {% if subtests.items %}
+          {% set sub_pass, sub_total = [], [] %}
+          {% set tests_html = display_tests(subtests, path, sub_pass, sub_total, name, version, results) | safe %}
+          {% set sub_pass_length, sub_total_length = (sub_pass | length), (sub_total | length) %}
+          {{ pass.extend(sub_pass) or total.extend(sub_total) or '' }}
+          <details id="{{ path }}">
+            <summary>
+              {{ test }}
+              <span>
+                {{ sub_pass_length }} / {{ sub_total_length }}
+                <progress max="1" value="{{ (sub_pass_length) / ((sub_total_length) or 1) }}" title="{{ ((sub_pass_length) / ((sub_total_length) or 1) * 100) | int }}%"></progress>
+              </span>
+            </summary>
+            <ul>{{ tests_html }}</ul>
+          </details>
+        {% else %}
+          {% if result.status != 'NA' %}
+            {{ total.append(1) or '' }}
+          {% endif %}
+          {% if result.status == 'PASS' %}
+            {{ pass.append(1) or '' }}
+          {% endif %}
+          <a id="{{ path }}"
+             hx-get="{{ url_for('links', name=name, version=version, path=path) }}"
+             hx-push-url="{{ url_for('test', name=name, version=version, path=path) }}"
+             hx-target="#renderings">
+            {{ display_test(test, result) }}
+          </a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}

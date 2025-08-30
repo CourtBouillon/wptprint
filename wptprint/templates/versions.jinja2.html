@@ -1,0 +1,26 @@
+{{ name }}
+{% if versions %}
+  <ul class="versions">
+    {% for version in versions %}
+      <li>
+        <a href="{{ url_for('test', name=name, version=version) }}">{{ version }}</a>
+        <form class="uninstall" hx-post="{{ url_for('uninstall', name=name, version=version) }}" hx-target="#versions-{{ name }}">
+          <button title="Delete {{ name }} {{ version }}">🗑️</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<form class="install" hx-post="{{ url_for('install', name=name) }}" hx-target="#versions-{{ name }}">
+  <select name="version">
+    {% for version in modules[name].list_versions() %}
+      {% if version not in versions %}
+        <option value="{{ version }}">{{ version }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+  <button>
+    Install
+    <span class="htmx-indicator">⏳️ (installing…)</span>
+  </button>
+</form>

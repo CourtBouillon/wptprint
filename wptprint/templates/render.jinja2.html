@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+      body {
+        margin: 0;
+      }
+      img {
+        border: 1px solid var(--grey);
+        display: block;
+        margin: 9px;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% for image in images %}
+      <img src="{{ image }}"/>
+    {% endfor %}
+    {% if error %}
+      <h3>Error</h3>
+      <pre>{{ error }}</pre>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,39 @@
+:root {
+  --black: #333;
+  --grey: #f2f2f1;
+  --red: #e8403a;
+  --green: #288339;
+  --yellow: #e7f339;
+  --white: #fff;
+}
+body {
+  color: var(--black);
+  font-family: Cantarell;
+  margin: 0;
+}
+iframe {
+  border: none;
+  box-sizing: content-box;
+}
+h1, h2 {
+  background: var(--red);
+  color: var(--white);
+  font-size: 1.5em;
+  font-weight: 900;
+  margin: 0;
+  padding: 0.75em;
+}
+h1 {
+  text-align: center;
+}
+h2 {
+  border-left: 1px solid var(--white);
+}
+h2::before {
+  content: '';
+  line-height: 1;
+  margin-right: 0.5em;
+}
+h2:not(:empty)::before {
+  content: '▶';
+}

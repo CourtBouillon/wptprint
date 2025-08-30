@@ -1,0 +1,6 @@
+{%- from "_macros.jinja2" import display_test -%}
+
+{% if rendering_url %}
+  <div id="renderings" hx-swap-oob="true" hx-trigger="load" hx-get="{{ rendering_url }}"></div>
+{% endif %}
+{{ display_test(test, result) }}

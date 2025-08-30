@@ -1,0 +1,16 @@
+<script>
+  document.querySelectorAll('details:has([id="{{ path }}"])').forEach(details => {details.open = true});
+  document.querySelectorAll('details a.active').forEach(a => {a.classList.remove('active')});
+  document.querySelector('[id="{{ path }}"]').classList.add('active');
+</script>
+<h2>{{ path }}</h2>
+<iframe id="iframe" src="{{ url_for('renderings', name=name, version=version, path=path) }}"></iframe>
+<div id="panel">
+  <a hx-get="{{ url_for('links', name=name, version=version, path=links.previous) }}" hx-target="#renderings" hx-push-url="{{ previous_url }}">←</a>
+  <form hx-post="{{ url_for('test_status', name=name, version=version, path=path) }}" hx-target="[id='{{ path }}']" hx-push-url="{{ next_url }}">
+    {% for status in ('pass', 'fail', 'na', 'error') %}
+      <button id="{{ status }}" name="status" accesskey="{{ status[0] }}" value="{{ status.upper() }}" {% if test.status == status.upper() %}class="active"{% endif %}>{{ status }}</button>
+    {% endfor %}
+  </form>
+  <a hx-get="{{ url_for('links', name=name, version=version, path=links.next) }}" hx-target="#renderings" hx-push-url="{{ next_url }}">→</a>
+</div>

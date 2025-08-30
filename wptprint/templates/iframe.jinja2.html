@@ -1,0 +1,6 @@
+{% if name == 'browser' %}
+  {% set src = url_for('data', path=path) %}
+{% else %}
+  {% set src = url_for('render', name=name, version=version, path=path) %}
+{% endif %}
+<iframe loading="lazy" id="{{ id }}|{{ path }}|{{ name or '' }}|{{ version or '' }}" class="{% if name == 'browser' %}html{% else %}png{% endif %}" src="{{ src }}"></iframe>

@@ -1,0 +1,192 @@
+{%- from "_macros.jinja2" import display_tests -%}
+<!DOCTYPE html>
+<html hx-history="false">
+  <head>
+    <title>{{ path or 'WPTprint' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="{{ url_for('static', filename='htmx-2.0.4.js') }}"></script>
+    <style>
+      body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+      }
+      iframe {
+        flex: 1;
+        margin-top: 1em;
+      }
+      nav {
+        font-size: 1.5em;
+        padding: 0.75em;
+        position: absolute;
+      }
+      nav a {
+        color: var(--white);
+        text-decoration: inherit;
+      }
+      a,
+      button {
+        cursor: pointer;
+      }
+
+      #menu {
+        background: var(--grey);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #menu ul {
+        line-height: 1.5;
+        list-style: none;
+        margin: 0;
+        padding-left: 0.5em;
+      }
+      #menu > ul {
+        flex: 1;
+        font-size: 0.85em;
+        overflow-y: scroll;
+        padding: 0.5em;
+      }
+      #menu a {
+        align-items: center;
+        border-radius: 0.2em;
+        color: inherit;
+        display: block;
+        overflow: hidden;
+        padding: 0 0.5em;
+        text-decoration: inherit;
+      }
+      #menu li a::before {
+        content: '— ';
+      }
+      #menu li a span {
+        float: right;
+        font-size: 0.75em;
+        line-height: 2;
+      }
+      #menu li a:hover,
+      #menu li a:focus {
+        background: var(--white);
+      }
+      #menu summary {
+        align-items: center;
+        cursor: pointer;
+        overflow: hidden;
+        padding: 0 0.5em;
+      }
+      #menu summary span {
+        float: right;
+        font-size: 0.75em;
+        line-height: 2;
+      }
+      #menu summary progress {
+        accent-color: var(--green);
+        margin-left: 0.5em;
+        vertical-align: baseline;
+      }
+      #menu summary:hover {
+        background: var(--white);
+      }
+      #menu .versions li {
+        display: flex;
+      }
+      #menu .versions li a {
+        flex: 1;
+      }
+      #menu form.install {
+        margin: 0 0 1em 2em;
+      }
+      #menu form.uninstall button {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        padding: 0;
+      }
+      #menu a.active {
+        color: var(--red);
+        font-weight: bold;
+      }
+
+      #renderings {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        width: 1400px;
+      }
+
+      #panel {
+        background: var(--red);
+        color: var(--white);
+        padding: 0.5em;
+        text-align: center;
+      }
+      #panel form {
+        display: inline-block;
+      }
+      #panel button {
+        appearance: none;
+        background: var(--grey);
+        border: 1px solid transparent;
+        border-radius: 0.2em;
+        cursor: pointer;
+        padding: 0.5em 1em;
+      }
+      #panel .active {
+        border-color: var(--white);
+        color: var(--white);
+      }
+      #panel #pass.active {
+        background: var(--green);
+      }
+      #panel #fail.active {
+        background: var(--red);
+      }
+      #panel #na.active {
+        background: var(--yellow);
+        color: var(--black);
+      }
+      #panel #error.active {
+        background: var(--red);
+      }
+      #panel a {
+        color: inherit;
+        font-size: 2em;
+        font-weight: 900;
+        line-height: 1;
+        text-decoration: inherit;
+        vertical-align: -15%;
+      }
+      #panel a:not([href]) {
+        opacity: 0.2;
+      }
+      .htmx-indicator {
+        display: none;
+      }
+      .htmx-request .htmx-indicator,
+      .htmx-request.htmx-indicator {
+        display: initial;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav><a href="{{ url_for('index') }}">☰</a></nav>
+    <div id="menu">
+      {% if name %}
+        <h1>{{ name }} {{ version }}</h1>
+        {{ display_tests(tests, '', [], [], name, version, results) }}
+      {% else %}
+        <h1>WPTprint</h1>
+        <ul>
+          {% for name in tools %}
+            <li id="versions-{{ name }}" hx-trigger="load" hx-get="{{ url_for('versions', name=name) }}">
+              ⏳️ {{ name }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div id="renderings" {% if path %}hx-trigger="load" hx-get="{{ url_for('links', name=name, version=version, path=path) }}"{% endif %}></div>
+  </body>
+</html>

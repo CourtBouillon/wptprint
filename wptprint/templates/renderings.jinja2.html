@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="{{ url_for('static', filename='htmx-2.0.4.js') }}"></script>
+    <style>
+      body {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      iframe.html {
+        border: 1px solid var(--grey);
+        height: 680px;
+        margin: 9px;
+        width: 680px;
+      }
+      iframe.png {
+        height: 700px;
+        margin: 0;
+        width: 700px;
+      }
+
+      select {
+        appearance: none;
+        background: var(--grey);
+        border: none;
+        border-radius: 0.2em;
+        cursor: pointer;
+        display: block;
+        font-weight: 900;
+        margin: auto;
+        padding: 1em;
+        text-align: center;
+      }
+
+      aside {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      aside ul {
+        margin: 0;
+      }
+      aside li {
+        background: var(--red);
+        border-radius: 0.2em;
+        color: var(--white);
+        display: inline-block;
+        margin-right: 0.5em;
+        padding: 0.25em 0.5em;
+      }
+
+      pre {
+        background: var(--grey);
+        margin: 10px;
+        padding: 0.5em;
+        width: 1380px;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% if tags %}
+      <aside>
+        <ul>
+          {% for tag in tags %}
+            <li>{{ tag }}</li>
+          {% endfor %}
+        </ul>
+      </aside>
+    {% endif %}
+    {% set default_name, default_version = name, version %}
+    {% for id in ('first', 'second') %}
+      {% set loop_index = loop.index %}
+      <div id="{{ id }}">
+        <select name="iframe" hx-post="{{ url_for('iframe') }}" hx-target="next iframe" hx-swap="outerHTML">
+          <option value="{{ id }}|{{ path }}|{{ default_name }}|{{ default_version }}" {{ 'selected' if loop_index == 1 }}>Test — {{ default_name }} {{ default_version }}</option>
+          {% for name, versions in tools.items() %}
+            {% for version in versions %}
+              {% if (name, version) != (default_name, default_version) %}
+                <option value="{{ id }}|{{ path }}|{{ name }}|{{ version }}">Test — {{ name }} {{ version }}</option>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          <option value="{{ id }}|{{ path }}|browser|" {{ 'selected' if loop_index == 2 and not references }}>Test — Browser</option>
+          {% for reference in references %}
+            {% set reference_index = loop.index %}
+            <option value="{{ id }}|{{ reference }}|{{ default_name }}|{{ default_version }}" {{ 'selected' if loop_index == 2 and reference_index == 1 }}>Reference {{ reference_index }} —  {{ default_name }} {{ default_version }}</option>
+            {% for name, versions in tools.items() %}
+              {% for version in versions %}
+                {% if (name, version) != (default_name, default_version) %}
+                  <option value="{{ id }}|{{ reference }}|{{ name }}|{{ version }}">Reference {{ reference_index }} —  {{ name }} {{ version }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            <option value="{{ id }}|{{ reference }}|browser|">Reference {{ reference_index }} — Browser</option>
+          {% endfor %}
+        </select>
+        {% if loop_index == 1 %}
+          {% set selected = id + '|' + path + '|' + default_name + '|' + default_version %}
+        {% elif references %}
+          {% set selected = id + '|' + references[0] + '|' + default_name + '|' + default_version %}
+        {% else %}
+          {% set selected = id + '|' + path + '|browser|' %}
+        {% endif %}
+        <iframe hx-get="{{ url_for('iframe', iframe=selected) }}" hx-trigger="load" hx-swap="outerHTML"></iframe>
+      </div>
+    {% endfor %}
+
+    <pre><code>{{ html }}</code></pre>
+  </body>
+</html>
